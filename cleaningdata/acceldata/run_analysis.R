@@ -1,3 +1,5 @@
+library(plyr)
+
 data_dir <- "UCI HAR Dataset"
 
 if (!file.exists(data_dir))
@@ -23,5 +25,7 @@ read_data <- function(dir, limit = -1) {
 limit <- -1
 long <- rbind(read_data("test", limit), read_data("train", limit))
 t <- split(long, interaction(long$activity, long$subject))
-res <- t(suppressWarnings(sapply(t, function(x) { sapply(x, mean) })))
+
+res <- ldply(t, function(x) { as.data.frame(c(x[1,1:2], colMeans(x[,3:ncol(x)]))) })
+res <- subset(res, select = -c(".id"))
 write.table(res, "tidy.txt")
